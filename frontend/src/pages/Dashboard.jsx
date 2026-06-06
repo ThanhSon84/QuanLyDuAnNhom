@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useCallback } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -12,22 +12,29 @@ const Dashboard = () => {
   const [newProjectDesc, setNewProjectDesc] = useState('');
   const [editingProject, setEditingProject] = useState(null);
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    fetchProjects();
-  }, [user, navigate]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/projects`);
       setProjects(res.data);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    const loadData = async () => {
+      if (active) {
+        await fetchProjects();
+      }
+    };
+    loadData();
+    return () => { active = false; };
+  }, [user, navigate, fetchProjects]);
 
   const handleCreateProject = async (e) => {
     e.preventDefault();
