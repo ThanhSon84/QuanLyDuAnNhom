@@ -54,6 +54,6 @@ CREATE TABLE project_members (
 -- Insert một tài khoản Admin mặc định (password: admin123 => mã hoá lát tính sau hoặc insert qua Backend)
 -- Mật khẩu đã mã hoá bcrypt cho 'admin123'
 INSERT INTO users (name, email, password, role) VALUES 
-('System Admin', 'admin@example.com', '$2a$10$wE9X.uT5zE4yYwF./2w68u3Q1R5v4.5Uf3H0u0PZ1fD9J/v2kZ8G6', 'admin'),
-('John Leader', 'leader@example.com', '$2a$10$wE9X.uT5zE4yYwF./2w68u3Q1R5v4.5Uf3H0u0PZ1fD9J/v2kZ8G6', 'leader'),
-('Alice Member', 'member@example.com', '$2a$10$wE9X.uT5zE4yYwF./2w68u3Q1R5v4.5Uf3H0u0PZ1fD9J/v2kZ8G6', 'member');
+('System Admin', 'admin@example.com', '$2b$10$AgLppHJUe.RnqGxUYspLx.sS6SkjNJ6rRMXFuIqlqxA.aPxEDxwkG', 'admin'),
+('John Leader', 'leader@example.com', '$2b$10$AgLppHJUe.RnqGxUYspLx.sS6SkjNJ6rRMXFuIqlqxA.aPxEDxwkG', 'leader'),
+('Alice Member', 'member@example.com', '$2b$10$AgLppHJUe.RnqGxUYspLx.sS6SkjNJ6rRMXFuIqlqxA.aPxEDxwkG', 'member');
