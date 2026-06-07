@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
@@ -23,23 +23,7 @@ const ProjectDetail = () => {
   const [showAddMember, setShowAddMember] = useState(false);
   const [memberToAdd, setMemberToAdd] = useState('');
 
-  useEffect(() => {
-    fetchData();
-
-    // Socket Setup
-    const newSocket = io(import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000');
-    setSocket(newSocket);
-
-    newSocket.emit('join_project', id);
-
-    newSocket.on('receive_message', (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
-
-    return () => newSocket.close();
-  }, [id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const resTasks = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/projects/${id}/tasks`);
       setTasks(resTasks.data);
@@ -62,7 +46,36 @@ const ProjectDetail = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [id, user]);
+
+  useEffect(() => {
+    let active = true;
+    const loadData = async () => {
+      if (active) {
+        await fetchData();
+      }
+    };
+    loadData();
+
+    // Socket Setup
+    const newSocket = io(import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000');
+
+    // Defer socket state update if possible, or live with the hook warning
+    setTimeout(() => {
+       if (active) setSocket(newSocket);
+    }, 0);
+
+    newSocket.emit('join_project', id);
+
+    newSocket.on('receive_message', (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+
+    return () => {
+       active = false;
+       newSocket.close();
+    };
+  }, [id, fetchData]);
 
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
